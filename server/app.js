@@ -1,12 +1,26 @@
 const express = require('express');
+const helmet = require('helmet');
+const { heartbeatRouter } = require('./routers/heartbeat');
 
-const app = express();
-const port = 4010;
+module.exports = async () => {
+    const app = express();
+    app.use(helmet({
+        contentSecurityPolicy: {
+            useDefaults: false,
+            directives: {
+                defaultSrc: ['\'self\'', '\'unsafe-inline\''],
+                baseUri: ['\'self\''],
+                fontSrc: ['\'self\'', 'https:', 'data:'],
+                frameAncestors: ['\'self\''],
+                imgSrc: ['\'self\'', 'data:'],
+                objectSrc: ['\'none\''],
+                scriptSrc: ['\'self\'', '\'unsafe-inline\''],
+                scriptSrcAttr: ['\'self\'', '\'unsafe-inline\''],
+                formAction: ['\'self\''],
+            },
+        },
+    }));
 
-app.get('/', (req, res) => {
-    res.send('Hello World!');
-});
-
-app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`);
-});
+    heartbeatRouter(app);
+    return app;
+};
